@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loan Approval Result</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #fff;
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-weight: 700;
+            font-size: 2.5rem;
+            letter-spacing: 1.5px;
+        }
+        .result {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: #27ae60;
+        }
+        .result.rejected {
+            color: #c0392b;
+        }
+        .charts {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        .chart-container {
+            width: 45%;
+            min-width: 300px;
+            max-width: 400px;
+            height: 300px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .chart-container canvas {
+            max-height: 270px;
+        }
+        button {
+            padding: 16px 24px;
+            background-color: #2575fc;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 8px 15px rgba(37, 117, 252, 0.4);
+        }
+        button:hover {
+            background-color: #1a52d1;
+            box-shadow: 0 12px 20px rgba(26, 82, 209, 0.6);
+        }
+        button:nth-child(2):hover {
+            background-color: #229954;
+        }
+        @media (max-width: 640px) {
+            .container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .charts {
+                flex-direction: column;
+                align-items: center;
+            }
+            .chart-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" role="main" aria-labelledby="pageTitle">
+        <h1 id="pageTitle">Loan Approval Result</h1>
+        <div class="result {{ 'rejected' if status == 'Rejected' else '' }}" role="alert" aria-live="polite">
+            Prediction: {{ status }}
+        </div>
+        <div class="charts">
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+        <div style="display: flex; gap: 15px; justify-content: center; margin-top: 40px;">
+            <button onclick="window.location.href='/'">Make Another Prediction</button>
+            <button onclick="window.location.href='/history'" style="background: #27ae60;">View History</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Bar Chart for Probabilities
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Approved', 'Rejected'],
+                datasets: [{
+                    label: 'Probability',
+                    data: [{{ prob_approved|tojson }}, {{ prob_rejected|tojson }}],
+                    backgroundColor: ['#27ae60', '#c0392b'],
+                    borderColor: ['#229954', '#a93226'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Approval Probabilities',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1,
+                        ticks: {
+                            callback: function(value) {
+                                return (value * 100).toFixed(0) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart for Approval Status
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Approved', 'Rejected'],
+                datasets: [{
+                    data: [{{ prob_approved|tojson }}, {{ prob_rejected|tojson }}],
+                    backgroundColor: ['#27ae60', '#c0392b'],
+                    borderColor: ['#229954', '#a93226'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Probability Distribution',
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + (context.parsed * 100).toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
