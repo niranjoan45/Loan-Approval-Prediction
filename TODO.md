@@ -1,0 +1,28 @@
+# Loan Approval Prediction Model Tasks
+
+- [x] Create loan_approval_model.py script with imports and data loading
+- [x] Add data exploration (info, describe, value counts)
+- [x] Preprocess data: encode categorical variables (education, self_employed, loan_status)
+- [x] Split data into train and test sets
+- [x] Train Logistic Regression model
+- [x] Train Random Forest model
+- [x] Evaluate models and print classification reports
+- [x] Save the best performing model
+- [x] Run the script and verify results
+- [x] Create Flask API server for model predictions
+- [x] Add /predict endpoint
+- [x] Run the Flask server
+- [x] Add prediction probabilities to API response
+- [x] Integrate Chart.js for visualizations
+- [x] Add bar chart for approval/rejection probabilities
+- [x] Add pie chart for approval status probabilities
+- [x] Update frontend to display graphs after prediction
+- [x] Fix JSON parsing error in frontend
+- [x] Create separate result page for displaying prediction and graphs
+- [x] Update form submission to redirect to result page
+- [x] Fix "Failed to fetch" error by changing form submission to POST /submit
+- [x] Add history button to result page
+- [x] Fix registration to redirect to login page instead of home
+- [x] Fix Jinja2 formatting error in history.html
+- [x] Make server accessible from other devices by binding to 0.0.0.0
+- [x] Set up ngrok for public access from mobile and other devices
